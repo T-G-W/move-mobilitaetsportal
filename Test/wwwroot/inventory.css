@@ -1,0 +1,13 @@
+.availability.sold-out {
+    color: var(--red);
+    opacity: 1;
+}
+
+.availability.sold-out i {
+    background: var(--red);
+}
+
+.round-arrow:disabled {
+    cursor: not-allowed;
+    opacity: .38;
+}

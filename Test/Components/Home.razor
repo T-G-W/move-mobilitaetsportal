@@ -1,0 +1,226 @@
+@page "/"
+@using System.Globalization
+@inject NavigationManager Navigation
+
+<PageTitle>Move | Mobilitätsportal</PageTitle>
+
+@if (!isLoggedIn)
+{
+    <main class="login-shell">
+        <section class="login-story">
+            <header class="brand brand-light">
+                <span class="brand-mark">m</span>
+                <span>move<span class="brand-period">.</span></span>
+            </header>
+            <div class="story-copy">
+                <p class="eyebrow">UNTERWEGS. GEMEINSAM.</p>
+                <h1>Dein Weg<br />beginnt <span>hier.</span></h1>
+                <p class="story-description">Ein Platz für alle Wege. Buche dein Firmen-Pedelec, den E-Scooter oder dein ÖPNV-Ticket an einem Ort.</p>
+            </div>
+            <div class="story-footer"><span class="story-line"></span><span>Mobilität, die weiterdenkt.</span></div>
+            <div class="story-index">01 <span>/</span> 03</div>
+        </section>
+
+        <section class="login-panel">
+            <div class="login-topline"><span>MITARBEITENDENPORTAL</span><span class="secure-label"><i></i> INTERN</span></div>
+            <div class="login-form-wrap">
+                <p class="eyebrow red">SCHÖN, DASS DU DA BIST</p>
+                <h2>Anmelden</h2>
+                <p class="form-intro">Melde dich mit deinem Unternehmenskonto an.</p>
+                <form class="login-form" @onsubmit="Login" @onsubmit:preventDefault="true">
+                    <label for="email">E-Mail-Adresse</label>
+                    <input id="email" type="email" placeholder="vorname.nachname@firma.de" @bind="email" required autocomplete="username" />
+                    <div class="password-label"><label for="password">Passwort</label><a href="mailto:it@firma.de?subject=Passwort%20vergessen">Passwort vergessen?</a></div>
+                    <input id="password" type="password" placeholder="Dein Passwort" @bind="password" required autocomplete="current-password" />
+                    <label class="remember-row"><input type="checkbox" @bind="rememberMe" /><span>Angemeldet bleiben</span></label>
+                    <button class="button button-dark login-button" type="submit">Anmelden <span aria-hidden="true">↗</span></button>
+                </form>
+                <p class="login-help">Noch kein Zugang? <a href="mailto:it@firma.de">IT-Team kontaktieren</a></p>
+            </div>
+            <footer class="login-legal"><span>© 2026 move. Mobilität für alle.</span><a href="mailto:datenschutz@firma.de">Datenschutz</a></footer>
+        </section>
+    </main>
+}
+else
+{
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a class="brand" href="/" aria-label="Move Startseite"><span class="brand-mark">m</span><span>move<span class="brand-period">.</span></span></a>
+            <div class="workspace-label">UNTERNEHMEN</div>
+            <div class="company-switcher"><span class="company-avatar">N</span><span><strong>Nordstern GmbH</strong><small>Mobilitätsportal</small></span><span class="chevron">⌄</span></div>
+            <nav class="main-nav" aria-label="Hauptnavigation">
+                <p class="nav-label">MENÜ</p>
+                <button class="nav-item @(activeView == "Übersicht" ? "active" : "")" @onclick='() => SetView("Übersicht")'><span class="nav-symbol">▦</span>Übersicht</button>
+                <button class="nav-item @(activeView == "Buchungen" ? "active" : "")" @onclick='() => SetView("Buchungen")'><span class="nav-symbol">▤</span>Meine Buchungen<span class="nav-count">@bookings.Count</span></button>
+                <button class="nav-item @(activeView == "Standorte" ? "active" : "")" @onclick='() => SetView("Standorte")'><span class="nav-symbol">⌖</span>Standorte</button>
+            </nav>
+            <div class="sidebar-bottom">
+                <div class="support-box"><span class="support-dot"></span><strong>Alles im grünen Bereich</strong><p>Alle Mobilitätsangebote sind verfügbar.</p><a href="mailto:fuhrpark@firma.de">Support kontaktieren <span>↗</span></a></div>
+                <button class="profile-button" @onclick="Logout"><span class="profile-avatar">@UserInitial</span><span class="profile-details"><strong>@DisplayName</strong><small>Mitarbeitende:r</small></span><span class="profile-menu">···</span></button>
+            </div>
+        </aside>
+
+        <main class="dashboard">
+            <header class="topbar">
+                <div class="breadcrumb">Mobilitätsportal <span>/</span> <strong>@activeView</strong></div>
+                <div class="topbar-actions"><span class="today-label">@DateTime.Now.ToString("dddd, d. MMMM", new CultureInfo("de-DE"))</span><button class="icon-button" title="Benachrichtigungen" aria-label="Benachrichtigungen">♧<i></i></button><button class="mobile-profile" @onclick="Logout" aria-label="Abmelden">@UserInitial</button></div>
+            </header>
+
+            @if (activeView == "Standorte")
+            {
+                <section class="content-area">
+                    <div class="page-heading"><div><p class="eyebrow red">DEIN NETZWERK</p><h1>Standorte</h1><p>Hier findest du deine Mobilitätsangebote in der Nähe.</p></div></div>
+                    <div class="location-list">
+                        <article class="location-row"><span class="location-icon">⌖</span><div><strong>Hauptstandort · Berlin Mitte</strong><p>Friedrichstraße 120, 10117 Berlin</p></div><span class="availability"><i></i> 12 Pedelecs · 8 E-Scooter</span><span class="location-distance">Dein Standort</span></article>
+                        <article class="location-row"><span class="location-icon">⌖</span><div><strong>Campus · Berlin Südkreuz</strong><p>Hildegard-Knef-Platz 2, 10829 Berlin</p></div><span class="availability"><i></i> 6 Pedelecs · 4 E-Scooter</span><span class="location-distance">3,8 km</span></article>
+                        <article class="location-row"><span class="location-icon">▤</span><div><strong>ÖPNV · Tarifbereich D</strong><p>Ticket für den erweiterten Verkehrsverbund</p></div><span class="availability"><i></i> Digital verfügbar</span><span class="location-distance">Sofort</span></article>
+                    </div>
+                </section>
+            }
+            else if (activeView == "Buchungen")
+            {
+                <section class="content-area">
+                    <div class="page-heading"><div><p class="eyebrow red">DEINE MOBILITÄT</p><h1>Meine Buchungen</h1><p>Deine anstehenden Fahrten und Tickets auf einen Blick.</p></div><button class="button button-red" @onclick="OpenBooking">＋ Neue Buchung</button></div>
+                    <div class="booking-list">
+                        @if (bookings.Count == 0)
+                        {
+                            <div class="empty-state"><span>↗</span><h2>Du bist noch flexibel.</h2><p>Hier erscheinen deine gebuchten Fahrmittel und Tickets.</p><button class="button button-red" @onclick="OpenBooking">Jetzt etwas buchen</button></div>
+                        }
+                        else
+                        {
+                            @foreach (var booking in bookings)
+                            {
+                                <article class="booking-row"><span class="vehicle-icon">@booking.Icon</span><div class="booking-info"><strong>@booking.Name</strong><span>@booking.Date · @booking.Time</span></div><span class="booking-status"><i></i> Bestätigt</span><button class="row-more" aria-label="Buchung @booking.Name">···</button></article>
+                            }
+                        }
+                    </div>
+                </section>
+            }
+            else
+            {
+                <section class="content-area">
+                    <div class="welcome-row"><div><p class="eyebrow red">@TodayLabel</p><h1>Guten Morgen, @FirstName<span>.</span></h1><p>Wohin darf es heute gehen?</p></div><div class="month-stamp"><span>DEIN MOBILITÄTSMONAT</span><strong>OKT <b>26</b></strong></div></div>
+
+                    <section class="hero-booking">
+                        <div class="hero-copy"><p class="eyebrow">FREIE FAHRT VORAUS</p><h2>Dein nächster<br />Weg wartet.</h2><p>Das passende Fahrmittel ist nur einen Klick entfernt.</p><button class="button button-white" @onclick="OpenBooking">Fahrmittel buchen <span>↗</span></button></div>
+                        <div class="hero-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><span class="art-cross cross-one">＋</span><span class="art-cross cross-two">＋</span><div class="art-route"><span></span><span></span><span></span></div><div class="art-disc"><span class="disc-letter">m</span><span class="disc-dot"></span></div><span class="art-label">MOVE<br />FORWARD</span></div>
+                        <div class="hero-meta"><span>01 / 03</span><span class="hero-meta-line"></span><span>WEGE, DIE ZUSAMMENFÜHREN</span></div>
+                    </section>
+
+                    <div class="section-heading"><div><p class="eyebrow red">DEIN WEG, DEINE WAHL</p><h2>Was brauchst du heute?</h2></div><span class="section-note">3 Angebote</span></div>
+                    <div class="vehicle-grid">
+                        <article class="vehicle-card vehicle-red"><div class="vehicle-card-top"><span class="vehicle-index">01 / ZWEIRAD</span><span class='availability @(IsSoldOut("Pedelec") ? "sold-out" : "")'><i></i> @GetAvailabilityLabel("Pedelec")</span></div><div class="vehicle-art bike-art" aria-hidden="true"><span class="bike-wheel wheel-left"></span><span class="bike-wheel wheel-right"></span><span class="bike-frame frame-a"></span><span class="bike-frame frame-b"></span><span class="bike-frame frame-c"></span><span class="bike-frame frame-d"></span></div><div class="vehicle-card-bottom"><div><h3>Pedelec</h3><p>Elektrisch. Entspannt. Für deinen Arbeitsweg.</p></div><button class="round-arrow" @onclick='() => OpenBookingFor("Pedelec")' disabled='@IsSoldOut("Pedelec")' aria-label="Pedelec buchen">↗</button></div></article>
+                        <article class="vehicle-card vehicle-black"><div class="vehicle-card-top"><span class="vehicle-index">02 / KURZSTRECKE</span><span class='availability @(IsSoldOut("E-Scooter") ? "sold-out" : "")'><i></i> @GetAvailabilityLabel("E-Scooter")</span></div><div class="vehicle-art scooter-art" aria-hidden="true"><span class="scooter-deck"></span><span class="scooter-stem"></span><span class="scooter-handle"></span><span class="scooter-wheel scooter-wheel-left"></span><span class="scooter-wheel scooter-wheel-right"></span><span class="scooter-light"></span></div><div class="vehicle-card-bottom"><div><h3>E-Scooter</h3><p>Wendig. Schnell. Direkt am Standort.</p></div><button class="round-arrow" @onclick='() => OpenBookingFor("E-Scooter")' disabled='@IsSoldOut("E-Scooter")' aria-label="E-Scooter buchen">↗</button></div></article>
+                        <article class="vehicle-card vehicle-paper"><div class="vehicle-card-top"><span class="vehicle-index">03 / ÖFFENTLICH</span><span class='availability @(IsSoldOut("ÖPNV Ticket · Stufe D") ? "sold-out" : "")'><i></i> @GetAvailabilityLabel("ÖPNV Ticket · Stufe D")</span></div><div class="vehicle-art ticket-art" aria-hidden="true"><span class="ticket-hole"></span><span class="ticket-zone">D</span><span class="ticket-label">VERBUND<br />TICKET</span><span class="ticket-lines"></span></div><div class="vehicle-card-bottom"><div><h3>ÖPNV Ticket <span class="level-tag">STUFE D</span></h3><p>Ein Ticket. Der ganze erweiterte Verbund.</p></div><button class="round-arrow" @onclick='() => OpenBookingFor("ÖPNV Ticket · Stufe D")' disabled='@IsSoldOut("ÖPNV Ticket · Stufe D")' aria-label="ÖPNV-Ticket buchen">↗</button></div></article>
+                    </div>
+
+                    <section class="next-trip"><div class="next-trip-heading"><div><p class="eyebrow red">IM KALENDER</p><h2>Deine nächste Buchung</h2></div><button class="text-link" @onclick='() => SetView("Buchungen")'>Alle Buchungen <span>↗</span></button></div>
+                        @if (bookings.Count > 0)
+                        {
+                            var next = bookings[0];
+                            <div class="next-trip-row"><span class="next-trip-icon">@next.Icon</span><div class="next-trip-title"><strong>@next.Name</strong><span>@next.Date · @next.Time</span></div><span class="booking-status"><i></i> Bestätigt</span><span class="next-trip-reference">@($"MOVE-{bookings.Count:00}")</span></div>
+                        }
+                        else
+                        {
+                            <div class="next-trip-row"><span class="next-trip-icon muted">↗</span><div class="next-trip-title"><strong>Noch keine Buchung</strong><span>Deine nächste Fahrt beginnt mit einem Klick.</span></div><button class="text-link" @onclick="OpenBooking">Jetzt buchen <span>↗</span></button></div>
+                        }
+                    </section>
+                    <footer class="dashboard-footer"><span>move. · Mobilität für alle.</span><span>Fragen? <a href="mailto:fuhrpark@firma.de">Wir helfen dir gern.</a></span></footer>
+                </section>
+            }
+        </main>
+    </div>
+}
+
+@if (isLoggedIn && showBooking)
+{
+    <div class="modal-backdrop" @onclick="CloseBooking">
+        <section class="booking-modal" role="dialog" aria-modal="true" aria-labelledby="booking-title" @onclick:stopPropagation="true">
+            <div class="modal-top"><span class="eyebrow red">NEUE RESERVIERUNG</span><button class="modal-close" @onclick="CloseBooking" aria-label="Schließen">×</button></div>
+            <h2 id="booking-title">Womit bist du unterwegs?</h2>
+            <p class="modal-intro">Wähle dein Fahrmittel und den gewünschten Startzeitpunkt.</p>
+            <form class="booking-form" @onsubmit="CreateBooking" @onsubmit:preventDefault="true">
+                <label for="vehicle">Fahrmittel</label>
+                <select id="vehicle" @bind="selectedVehicle"><option value="Pedelec" disabled='@IsSoldOut("Pedelec")'>@GetAvailabilityLabel("Pedelec") · Pedelec</option><option value="E-Scooter" disabled='@IsSoldOut("E-Scooter")'>@GetAvailabilityLabel("E-Scooter") · E-Scooter</option><option value="ÖPNV Ticket · Stufe D" disabled='@IsSoldOut("ÖPNV Ticket · Stufe D")'>@GetAvailabilityLabel("ÖPNV Ticket · Stufe D") · ÖPNV Ticket Stufe D</option></select>
+                <div class="form-columns"><div><label for="booking-date">Datum</label><input id="booking-date" type="date" @bind="selectedDate" min="@DateTime.Today.ToString("yyyy-MM-dd")" required /></div><div><label for="booking-time">Startzeit</label><input id="booking-time" type="time" @bind="selectedTime" required /></div></div>
+                <div class="booking-note"><span>i</span><p>@(selectedVehicle.Contains("ÖPNV") ? "Dein digitales Ticket wird nach der Buchung bereitgestellt." : "Abholung und Rückgabe erfolgen am Hauptstandort Berlin Mitte.")</p></div>
+                <button class="button button-red submit-booking" type="submit">Buchung bestätigen <span>↗</span></button>
+            </form>
+        </section>
+    </div>
+}
+
+@code {
+    private string email = string.Empty;
+    private string password = string.Empty;
+    private bool rememberMe = true;
+    private bool isLoggedIn;
+    private bool showBooking;
+    private string activeView = "Übersicht";
+    private string selectedVehicle = "Pedelec";
+    private DateTime selectedDate = DateTime.Today.AddDays(1);
+    private TimeOnly selectedTime = new(9, 0);
+    private readonly List<Booking> bookings = new()
+    {
+        new("Pedelec", DateTime.Today.AddDays(1).ToString("'Morgen, 'd. MMMM", new CultureInfo("de-DE")), "09:00", "P")
+    };
+
+    private string TodayLabel => DateTime.Now.ToString("dddd, d. MMMM yyyy", new CultureInfo("de-DE")).ToUpperInvariant();
+    private string DisplayName => string.IsNullOrWhiteSpace(email) ? "Mitarbeitende:r" : email.Split('@')[0].Replace('.', ' ');
+    private string FirstName => DisplayName.Split(' ')[0] is var name && name.Length > 0 ? char.ToUpper(name[0]) + name[1..] : "dort";
+    private string UserInitial => FirstName.Length > 0 ? FirstName[..1].ToUpperInvariant() : "M";
+
+    private void Login() => isLoggedIn = true;
+    private void Logout()
+    {
+        isLoggedIn = false;
+        activeView = "Übersicht";
+    }
+    private void SetView(string view) => activeView = view;
+    private void OpenBooking()
+    {
+        var availableVehicle = new[] { "Pedelec", "E-Scooter", "ÖPNV Ticket · Stufe D" }.FirstOrDefault(vehicle => !IsSoldOut(vehicle));
+        if (availableVehicle is not null)
+        {
+            OpenBookingFor(availableVehicle);
+        }
+    }
+    private void OpenBookingFor(string vehicle)
+    {
+        if (IsSoldOut(vehicle))
+        {
+            return;
+        }
+
+        selectedVehicle = vehicle;
+        showBooking = true;
+    }
+    private void CloseBooking() => showBooking = false;
+
+    private void CreateBooking()
+    {
+        if (IsSoldOut(selectedVehicle))
+        {
+            return;
+        }
+
+        var date = selectedDate.ToString("dddd, d. MMMM", new CultureInfo("de-DE"));
+        var icon = selectedVehicle.Contains("ÖPNV") ? "D" : selectedVehicle == "Pedelec" ? "P" : "S";
+        bookings.Insert(0, new Booking(selectedVehicle, date, selectedTime.ToString("HH:mm"), icon));
+        activeView = "Buchungen";
+        showBooking = false;
+    }
+
+    private int GetCapacity(string vehicle) => vehicle switch
+    {
+        "Pedelec" => 2,
+        "E-Scooter" => 3,
+        _ => 4
+    };
+
+    private int GetAvailableCount(string vehicle) => Math.Max(0, GetCapacity(vehicle) - bookings.Count(booking => booking.Name == vehicle));
+    private bool IsSoldOut(string vehicle) => GetAvailableCount(vehicle) == 0;
+    private string GetAvailabilityLabel(string vehicle) => IsSoldOut(vehicle) ? "Ausgebucht" : $"{GetAvailableCount(vehicle)} / {GetCapacity(vehicle)} frei";
+
+    private sealed record Booking(string Name, string Date, string Time, string Icon);
+}
